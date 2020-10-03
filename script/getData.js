@@ -55,15 +55,27 @@ export const getData = {
     });
   },
   catalog(callback) {
-    // const result;
     this.get((data) => {
-      //   callback(result);
+      const result = data.reduce((arr, item) => {
+        if (!arr.includes(item.category)) {
+          arr.push(item.category);
+        }
+        return arr;
+      }, []);
+      callback(result);
     });
   },
   subCatalog(value, callback) {
-    // const result;
     this.get((data) => {
-      //   callback(result);
+      const result = data
+        .filter((item) => item.category === value)
+        .reduce((arr, item) => {
+          if (!arr.includes(item.subcategory)) {
+            arr.push(item.subcategory);
+          }
+          return arr;
+        }, []);
+      callback(result);
     });
   },
 };

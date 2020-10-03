@@ -1,8 +1,12 @@
+import { getData } from "./getData.js";
+import generateSubCatalog from "./generateSubCatalog.js";
+
 export const catalog = () => {
+  const updateSubCatalog = generateSubCatalog();
   const btnBurger = document.querySelector(".btn-burger");
   const catalog = document.querySelector(".catalog");
   // const overlay = document.querySelector(".overlay");
-  const btnClose = document.querySelector(".btn-close");
+  // const btnClose = document.querySelector(".btn-close");
   const catalogList = document.querySelector(".catalog-list");
   const subCatalog = document.querySelector(".subcatalog");
   const subcatalogHeader = document.querySelector(".subcatalog-header");
@@ -23,13 +27,19 @@ export const catalog = () => {
     closeSubMenu();
   };
 
-  const openSubMenu = (event) => {
+  const handlerCatalog = (event) => {
     event.preventDefault();
-    const target = event.target;
-    const itemList = target.closest(".catalog-list__item");
+    // const target = event.target;
+    const itemList = event.target.closest(".catalog-list__item>a");
     if (itemList) {
-      subcatalogHeader.innerHTML = itemList.innerHTML;
-      subCatalog.classList.add("subopen");
+      // subcatalogHeader.innerHTML = itemList.innerHTML;
+      getData.subCatalog(itemList.textContent, (data) => {
+        updateSubCatalog(itemList.textContent, data);
+        subCatalog.classList.add("subopen");
+      });
+    }
+    if (event.target.closest(".btn-close")) {
+      closeMenu();
     }
   };
 
@@ -38,13 +48,17 @@ export const catalog = () => {
   };
 
   btnBurger.addEventListener("click", openMenu);
-  btnClose.addEventListener("click", closeMenu);
+  // btnClose.addEventListener("click", closeMenu);
   overlay.addEventListener("click", closeMenu);
   document.addEventListener("keydown", (e) => {
     if (e.code === "Escape") {
       closeMenu();
     }
   });
-  catalog.addEventListener("click", openSubMenu);
-  btnReturn.addEventListener("click", closeSubMenu);
+  catalog.addEventListener("click", handlerCatalog);
+  // btnReturn.addEventListener("click", closeSubMenu);
+  subCatalog.addEventListener("click", (event) => {
+    const btnReturn = event.target.closest(".btn-return");
+    if (btnReturn) closeSubMenu();
+  });
 };
