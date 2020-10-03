@@ -1,15 +1,78 @@
 import { getData } from "./getData.js";
+import userData from "./userData.js";
 
-const wishList = ["idd005", "idd100", "idd077", "idd033"];
+const COUNTER = 6;
+
+// const wishList = [];
 
 const generateGoodsPage = () => {
   const mainHeader = document.querySelector(".main-header");
-  const goodsList = document.querySelector(".goods-list");
 
   const generateCards = (data) => {
+    const goodsList = document.querySelector(".goods-list");
     goodsList.textContent = "";
+
+    if (!data.length) {
+      const goods = document.querySelector(".goods");
+      goods.textContent =
+        location.search === "?wishlist"
+          ? "Список желаний пуст"
+          : "К сожалению, по Вашему запросу ничего не найдено";
+    }
     data.forEach((item) => {
-      goodsList.insertAdjacentHTML("afterbegin", `<li>${item.name}</li>`);
+      const {
+        name: itemName,
+        count,
+        description,
+        id,
+        img: image,
+        price,
+      } = item;
+      goodsList.insertAdjacentHTML(
+        "afterbegin",
+        `<li class="goods-list__item">
+            <a class="goods-item__link" href="card.html#${id}">
+                <article class="goods-item">
+                <div class="goods-item__img">
+                    <img
+                    src=${image[0]}
+                    ${image[1] ? `data-second-image=${image[1]}` : ""}
+                    alt="${itemName}"
+                    />
+                </div>
+                ${
+                  count > COUNTER
+                    ? '<p class="goods-item__new">Новинка</p>'
+                    : ""
+                }
+
+                ${!count ? '<p class="goods-item__new">Нет в наличии</p>' : ""}
+                <h3 class="goods-item__header">${itemName}</h3>
+                <p class="goods-item__description">
+                    ${description}
+                </p>
+                <p class="goods-item__price">
+                    <span class="goods-item__price-value">${price}</span>
+                    <span class="goods-item__currency"> ₽</span>
+                </p>
+                ${
+                  count
+                    ? `<button class="btn btn-add-card" aria-label="Добравить в корзину" data-idd="${id}"></button>`
+                    : ""
+                }
+                </article>
+            </a>
+        </li>`
+      );
+    });
+
+    goodsList.addEventListener("click", (e) => {
+      const btnAddCart = e.target.closest(".btn-add-cart");
+      if (btnAddCart) {
+        e.preventDefault();
+        userData.cartList = btnAddCart.dataset.idd;
+      }
+      console.log("userData.cartList: ", userData.cartList);
     });
   };
 
@@ -22,7 +85,7 @@ const generateGoodsPage = () => {
       getData.search(value, generateCards);
       mainHeader.textContent = `Поиск: ${value}`;
     } else if (prop === "wishlist") {
-      getData.wishList(wishList, generateCards);
+      getData.wishList(userData.wishList, generateCards);
       mainHeader.textContent = `Список желаний`;
     } else if (prop === "cat" || prop === "subcat") {
       getData.category(prop, value, generateCards);
